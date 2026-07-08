@@ -220,7 +220,7 @@ def handle_turnstile(sb) -> bool:
         except Exception: pass
         time.sleep(0.5)
 
-    for attempt in range(6):
+    for attempt in range(10):
         if sb.execute_script(_SOLVED_JS):
             print(f"  ✅ Turnstile 通过（第 {attempt + 1} 次尝试）")
             return True
@@ -246,7 +246,7 @@ def handle_turnstile(sb) -> bool:
 def login(sb) -> bool:
     print(f"🌐 打开登录页面: {LOGIN_URL}")
     sb.uc_open_with_reconnect(LOGIN_URL, reconnect_time=5)
-    time.sleep(4)
+    time.sleep(10)
 
     try:
         sb.wait_for_element('input[name="Email"]', timeout=15)
@@ -412,10 +412,11 @@ def main():
             pass
 
         if login(sb):
-            renew(sb)
+            if not renew(sb): sys.exit(1)
         else:
             print("\n❌ 登录环节失败，终止后续续期操作。")
             send_tg_message("❌", "登录失败", "未知")
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()
