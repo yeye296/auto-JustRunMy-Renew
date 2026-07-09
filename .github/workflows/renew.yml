@@ -56,20 +56,27 @@ jobs:
           pip install --upgrade pip
           pip install seleniumbase aiohttp requests
 
-      # 步骤 5: 安装 Hysteria2（如果需要代理）
-      - name: 📡 安装 Hysteria2
+      - name: 启用 WARP
+        uses: fscarmen/warp-on-actions@v1.3
+        with:
+          stack: dual
+          mode: client
+
+      - name: 配置 DNS 并验证 WARP
         run: |
-          if [ -n "${{ env.HY2_PROXY_URL }}" ]; then
-            echo "安装 Hysteria2..."
-            curl -L -o hysteria \
-              https://github.com/apernet/hysteria/releases/latest/download/hysteria-linux-amd64
-            chmod +x hysteria
-            sudo mv hysteria /usr/local/bin/hysteria
-            hysteria version
-            echo "✅ Hysteria2 安装完成"
-          else
-            echo "⚠️ 未配置代理，跳过 Hysteria2 安装"
-          fi
+          set -euo pipefail
+          sudo systemctl stop systemd-resolved 2>/dev/null || true
+          sudo rm -f /etc/resolv.conf
+          echo -e "nameserver 1.1.1.1\nnameserver 8.8.8.8" | sudo tee /etc/resolv.conf
+          sudo chattr +i /etc/resolv.conf 2>/dev/null || true
+          sleep 3
+          for i in {1..30}; do
+            status=$(curl -s --max-time 5 https://www.cloudflare.com/cdn-cgi/trace | grep -oP 'warp=\K\w+' || echo unknown)
+            [[ "$status" =~ ^(on|plus)$ ]] && echo "WARP 已连接" && break
+            echo "WARP 连接中... ($i/30)"
+            sleep 2
+          done
+          echo -n "出口 IP: " && curl -s https://api.ipify.org && echo
 
       # 步骤 6: 执行脚本
       - name: 🚀 运行续期脚本
