@@ -14,8 +14,8 @@ DOMAIN    = "justrunmy.app"
 # ============================================================
 #  环境变量与全局变量
 # ============================================================
-EMAIL        = os.environ.get("JUSTRUNMY_EMAIL")
-PASSWORD     = os.environ.get("JUSTRUNMY_PASSWORD")
+EMAIL        = os.environ.get("JUSTRUNMY_EMAIL", "test@gmail.com")
+PASSWORD     = os.environ.get("JUSTRUNMY_PASSWORD", "123456")
 TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN")
 TG_CHAT_ID   = os.environ.get("TG_CHAT_ID")
 
@@ -281,18 +281,18 @@ def login(sb) -> bool:
     else:
         print("ℹ️ 未检测到 Turnstile")
 
-    print("🖱️ 敲击回车提交表单...")
+    print("🖱️ 提交表单...")
     sb.press_keys('input[name="Password"]', '\n')
+    # sb.click('button[type="submit"]')
+    # sb.click('button:contains("Sign In")')
 
     print("⏳ 等待登录跳转...")
     for _ in range(12):
         time.sleep(1)
-        if sb.get_current_url().split('?')[0].lower() != LOGIN_URL.lower():
-            break
-
-    if sb.get_current_url().split('?')[0].lower() != LOGIN_URL.lower():
-        print("✅ 登录成功！")
-        return True
+        current_url = sb.get_current_url().split('?')[0].lower()
+        if "justrunmy.app/panel" in current_url or "login" not in current_url:
+            print(f"✅ 登录成功！{current_url}")
+            return True
         
     print("❌ 登录失败，页面没有跳转。")
     sb.save_screenshot("login_failed.png")
@@ -405,11 +405,11 @@ def main():
     
     with SB(**sb_kwargs) as sb:
         print("✅ 浏览器已启动")
-        try:
-            sb.open("https://api.ipify.org/?format=json")
-            print(f"🌐 当前出口真实 IP: {sb.get_text('body')}")
-        except Exception:
-            pass
+        # try:
+        #     sb.open("https://api.ipify.org/?format=json")
+        #     print(f"🌐 当前出口真实 IP: {sb.get_text('body')}")
+        # except Exception:
+        #     pass
 
         if login(sb):
             if not renew(sb): sys.exit(1)
