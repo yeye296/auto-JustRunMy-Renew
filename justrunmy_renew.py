@@ -311,7 +311,8 @@ def renew(sb) -> bool:
     print("="*50)
     
     print("🌐 进入控制面板: https://justrunmy.app/panel")
-    sb.open("https://justrunmy.app/panel")
+    # sb.open("https://justrunmy.app/panel")
+    sb.uc_open_with_reconnect("https://justrunmy.app/panel", reconnect_time=5)
     time.sleep(3)
 
     print("🖱️ 自动读取应用名称...")
