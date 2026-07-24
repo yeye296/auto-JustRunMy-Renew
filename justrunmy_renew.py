@@ -90,7 +90,7 @@ _EXPAND_JS = """
 """
 
 _EXISTS_JS = """
-(function(){
+return (function(){
     return document.querySelector('input[name="cf-turnstile-response"]') !== null;
 })()
 """
