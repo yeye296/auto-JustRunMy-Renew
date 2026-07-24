@@ -66,7 +66,7 @@ def send_tg_message(status_icon, status_text, time_left):
 #  页面注入脚本
 # ============================================================
 _EXPAND_JS = """
-(function() {
+let f = function() {
     var ts = document.querySelector('input[name="cf-turnstile-response"]');
     if (!ts) return 'no-turnstile';
     var el = ts;
@@ -86,7 +86,8 @@ _EXPAND_JS = """
         }
     });
     return 'done';
-})()
+};
+return f();
 """
 
 _EXISTS_JS = """
@@ -96,14 +97,14 @@ return (function(){
 """
 
 _SOLVED_JS = """
-(function(){
+return (function(){
     var i = document.querySelector('input[name="cf-turnstile-response"]');
     return !!(i && i.value && i.value.length > 20);
 })()
 """
 
 _COORDS_JS = """
-(function(){
+let f = function(){
     var iframes = document.querySelectorAll('iframe');
     for (var i = 0; i < iframes.length; i++) {
         var src = iframes[i].src || '';
@@ -125,11 +126,12 @@ _COORDS_JS = """
         }
     }
     return null;
-})()
+};
+return f();
 """
 
 _WININFO_JS = """
-(function(){
+return (function(){
     return {
         sx: window.screenX || 0,
         sy: window.screenY || 0,
@@ -237,7 +239,7 @@ def handle_turnstile(sb) -> bool:
                 return True
         print(f"  ⚠️ 第 {attempt + 1} 次未通过，重试...")
 
-    print("  ❌ Turnstile 6 次均失败")
+    print("  ❌ Turnstile 10 次均失败")
     return False
 
 # ============================================================
