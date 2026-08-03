@@ -369,7 +369,7 @@ def renew(sb) -> bool:
         sb.refresh()
         time.sleep(4)
         # 根据页面结构获取剩余时间文本
-        timer_text = sb.get_text('span.font-mono.text-xl')
+        timer_text = sb.get_text('span.font-mono')
         print(f"⏱️ 当前应用剩余时间: {timer_text}")
         
         if "2 days 23" in timer_text or "3 days" in timer_text or "1 days 11" in timer_text:
